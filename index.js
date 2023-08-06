@@ -24,6 +24,56 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get("/api/:data?", function (req, res){
+  var returnValue = {};
+  
+  //deal with empty parameter
+  if (req.params.data === undefined){
+    var currentDate = new Date(Date.now());
+    returnValue['unix'] = Date.now();
+    returnValue['utc'] = currentDate.toUTCString();
+  }
+
+  //check if can be parsed as string
+  else if (!isNaN(Date.parse(req.params.data))){
+    //try to create date
+    try{
+      let utcDate = new Date(Date.parse(req.params.data));
+      let unixDate = utcDate.getTime();
+      returnValue = {unix: unixDate ,utc: utcDate.toUTCString()};
+    }
+    catch(error){
+      returnValue['error'] ="Invalid Date"
+    }
+
+  }
+
+  //check if can be parsed as integer
+  else if (!isNaN(parseInt(req.params.data))){  
+    try{
+      let currentDate = new Date(parseInt(req.params.data));
+      let unixDate = currentDate.getTime();
+      returnValue = {unix: unixDate ,utc: currentDate.toUTCString()}
+
+    }
+    catch(error){
+      returnValue['error'] ="Invalid Date"
+    }
+  } 
+
+
+  //else update return value to fail
+    else {
+        returnValue['error'] ="Invalid Date"
+  }
+
+  //send response once validation occurs. 
+  res.json(returnValue);
+  
+}
+);
+
+
 
 
 // listen for requests :)
